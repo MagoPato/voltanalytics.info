@@ -1346,23 +1346,54 @@ footer .nav__logo svg.logo-mark { height: 36px; }
             <li><svg class="ico ico--step" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h6M8 13h8M8 17h5"/></svg><span class="rows__name">Reporte de resultados</span><p>Le entregamos las anomalías detectadas y las acciones recomendadas.</p></li>
           </ol>
         </div>
-        <form class="pilot-form form span-6 start-7" method="post" action="mailto:contacto@voltanalytics.example" enctype="text/plain" novalidate>
+        <form id="pilotForm" class="pilot-form form span-6 start-7" method="POST"
+          action="https://formsubmit.co/ajax/voltanalytics01@gmail.com" novalidate>
+          <!-- Opciones ocultas de FormSubmit -->
+          <input type="hidden" name="_subject" value="Nueva solicitud de prueba piloto - VoltAnalytics">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_template" value="table">
+        
           <p class="form-req">Los campos marcados con <span class="req" aria-hidden="true">*</span> son obligatorios.</p>
           <fieldset class="field field--full seg">
             <legend>Tipo de instalación <span class="req" aria-hidden="true">*</span></legend>
             <label><input type="radio" name="tipo" value="Hogar" required> Hogar</label>
             <label><input type="radio" name="tipo" value="PyME" checked> PyME</label>
           </fieldset>
-          <label class="field"><span class="field__l">Nombre completo <span class="req" aria-hidden="true">*</span></span><input name="nombre" type="text" autocomplete="name" required aria-required="true"></label>
-          <label class="field" data-only="PyME"><span class="field__l">Nombre de la empresa <span class="req" aria-hidden="true">*</span></span><input name="empresa" type="text" autocomplete="organization" required aria-required="true"></label>
-          <label class="field"><span class="field__l">Correo electrónico <span class="req" aria-hidden="true">*</span></span><input name="correo" type="email" autocomplete="email" required aria-required="true"></label>
-          <label class="field"><span class="field__l">Teléfono <span class="opt">(opcional)</span></span><input name="telefono" type="tel" autocomplete="tel" inputmode="tel"></label>
-          <label class="field"><span class="field__l">Municipio <span class="req" aria-hidden="true">*</span></span><input name="municipio" type="text" autocomplete="address-level2" required aria-required="true"></label>
-          <label class="field"><span class="field__l">Tipo de red <span class="opt">(opcional)</span></span><select name="red"><option value="">No lo sé</option><option>Monofásica</option><option>Bifásica</option><option data-only-opt="PyME">Trifásica</option></select></label>
-          <label class="field field--full"><span class="field__l">¿Qué le gustaría medir? <span class="opt">(opcional)</span></span><textarea name="mensaje" rows="3" placeholder="Por ejemplo: el consumo del compresor, variaciones de voltaje o el recibo de luz."></textarea></label>
+          <label class="field"><span class="field__l">Nombre completo <span class="req" aria-hidden="true">*</span></span><input
+              name="nombre" type="text" autocomplete="name" required aria-required="true"></label>
+          <label class="field" data-only="PyME"><span class="field__l">Nombre de la empresa <span class="req"
+                aria-hidden="true">*</span></span><input name="empresa" type="text" autocomplete="organization" required
+              aria-required="true"></label>
+          <label class="field"><span class="field__l">Correo electrónico <span class="req"
+                aria-hidden="true">*</span></span><input name="correo" type="email" autocomplete="email" required
+              aria-required="true"></label>
+          <label class="field"><span class="field__l">Teléfono <span class="opt">(opcional)</span></span><input name="telefono"
+              type="tel" autocomplete="tel" inputmode="tel"></label>
+          <label class="field"><span class="field__l">Municipio <span class="req" aria-hidden="true">*</span></span><input
+              name="municipio" type="text" autocomplete="address-level2" required aria-required="true"></label>
+          <label class="field"><span class="field__l">Tipo de red <span class="opt">(opcional)</span></span><select name="red">
+              <option value="">No lo sé</option>
+              <option>Monofásica</option>
+              <option>Bifásica</option>
+              <option data-only-opt="PyME">Trifásica</option>
+            </select></label>
+          <label class="field field--full"><span class="field__l">¿Qué le gustaría medir? <span
+                class="opt">(opcional)</span></span><textarea name="mensaje" rows="3"
+              placeholder="Por ejemplo: el consumo del compresor, variaciones de voltaje o el recibo de luz."></textarea></label>
+        
           <p class="form-error" role="alert" hidden></p>
-          <p class="form-note">El equipo revisa cada solicitud y se pondrá en contacto con usted para agendar el diagnóstico.</p>
-          <div class="btn-row"><button class="btn btn--primary" type="submit">Solicitar prueba piloto<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></button></div>
+          <p class="form-success" role="status" hidden style="color: #16a34a; font-weight: 500;">¡Solicitud enviada! Nos
+            pondremos en contacto pronto.</p>
+        
+          <p class="form-note">El equipo revisa cada solicitud y se pondrá en contacto con usted para agendar el diagnóstico.
+          </p>
+          <div class="btn-row">
+            <button class="btn btn--primary" type="submit">Solicitar prueba piloto<svg class="m-arrow" viewBox="0 0 12 12"
+                aria-hidden="true">
+                <path class="m-arrow__stem" d="M1 6h8" />
+                <path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" />
+              </svg></button>
+          </div>
         </form>
       </div>
     </div>
