@@ -796,6 +796,8 @@ footer.closing .footer__lede { font-size: 15px; }
 .field[hidden] { display: none !important; }
 .field.is-invalid :is(input, select, textarea) { border-color: #c2410c; box-shadow: 0 0 0 3px rgb(194 65 12 / .15); }
 .field-msg { font-size: 13px; color: #b23a0a; font-weight: 400; }
+.form-ok { grid-column: 1 / -1; margin: 0; padding: 12px 14px; border-radius: 10px; background: #e7f6ec; color: #14532d; font-size: 14px; }
+.pilot-form .btn[disabled] { opacity: .65; cursor: progress; }
 .form-error { grid-column: 1 / -1; margin: 0; padding: 10px 14px; border-radius: 10px; background: #fdecea; color: #8a2a07; font-size: 14px; }
 .form-ok { grid-column: 1 / -1; margin: 0; padding: 12px 14px; border-radius: 10px; background: #e3f4ee; color: #06523f; font-size: 15px; }
 
@@ -1346,54 +1348,28 @@ footer .nav__logo svg.logo-mark { height: 36px; }
             <li><svg class="ico ico--step" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h6M8 13h8M8 17h5"/></svg><span class="rows__name">Reporte de resultados</span><p>Le entregamos las anomalías detectadas y las acciones recomendadas.</p></li>
           </ol>
         </div>
-        <form id="pilotForm" class="pilot-form form span-6 start-7" method="POST"
-          action="https://formsubmit.co/ajax/voltanalytics01@gmail.com" novalidate>
-          <!-- Opciones ocultas de FormSubmit -->
-          <input type="hidden" name="_subject" value="Nueva solicitud de prueba piloto - VoltAnalytics">
-          <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_template" value="table">
-        
+        <form class="pilot-form form span-6 start-7" method="post" action="https://formsubmit.co/voltanalytics01@gmail.com" data-endpoint="https://formsubmit.co/ajax/voltanalytics01@gmail.com" novalidate>
           <p class="form-req">Los campos marcados con <span class="req" aria-hidden="true">*</span> son obligatorios.</p>
+          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
+          <input type="hidden" name="_subject" value="Nueva solicitud de prueba piloto · VoltAnalytics">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
           <fieldset class="field field--full seg">
             <legend>Tipo de instalación <span class="req" aria-hidden="true">*</span></legend>
             <label><input type="radio" name="tipo" value="Hogar" required> Hogar</label>
             <label><input type="radio" name="tipo" value="PyME" checked> PyME</label>
           </fieldset>
-          <label class="field"><span class="field__l">Nombre completo <span class="req" aria-hidden="true">*</span></span><input
-              name="nombre" type="text" autocomplete="name" required aria-required="true"></label>
-          <label class="field" data-only="PyME"><span class="field__l">Nombre de la empresa <span class="req"
-                aria-hidden="true">*</span></span><input name="empresa" type="text" autocomplete="organization" required
-              aria-required="true"></label>
-          <label class="field"><span class="field__l">Correo electrónico <span class="req"
-                aria-hidden="true">*</span></span><input name="correo" type="email" autocomplete="email" required
-              aria-required="true"></label>
-          <label class="field"><span class="field__l">Teléfono <span class="opt">(opcional)</span></span><input name="telefono"
-              type="tel" autocomplete="tel" inputmode="tel"></label>
-          <label class="field"><span class="field__l">Municipio <span class="req" aria-hidden="true">*</span></span><input
-              name="municipio" type="text" autocomplete="address-level2" required aria-required="true"></label>
-          <label class="field"><span class="field__l">Tipo de red <span class="opt">(opcional)</span></span><select name="red">
-              <option value="">No lo sé</option>
-              <option>Monofásica</option>
-              <option>Bifásica</option>
-              <option data-only-opt="PyME">Trifásica</option>
-            </select></label>
-          <label class="field field--full"><span class="field__l">¿Qué le gustaría medir? <span
-                class="opt">(opcional)</span></span><textarea name="mensaje" rows="3"
-              placeholder="Por ejemplo: el consumo del compresor, variaciones de voltaje o el recibo de luz."></textarea></label>
-        
+          <label class="field"><span class="field__l">Nombre completo <span class="req" aria-hidden="true">*</span></span><input name="nombre" type="text" autocomplete="name" required aria-required="true"></label>
+          <label class="field" data-only="PyME"><span class="field__l">Nombre de la empresa <span class="req" aria-hidden="true">*</span></span><input name="empresa" type="text" autocomplete="organization" required aria-required="true"></label>
+          <label class="field"><span class="field__l">Correo electrónico <span class="req" aria-hidden="true">*</span></span><input name="correo" type="email" autocomplete="email" required aria-required="true"></label>
+          <label class="field"><span class="field__l">Teléfono <span class="opt">(opcional)</span></span><input name="telefono" type="tel" autocomplete="tel" inputmode="tel"></label>
+          <label class="field"><span class="field__l">Municipio <span class="req" aria-hidden="true">*</span></span><input name="municipio" type="text" autocomplete="address-level2" required aria-required="true"></label>
+          <label class="field"><span class="field__l">Tipo de red <span class="opt">(opcional)</span></span><select name="red"><option value="">No lo sé</option><option>Monofásica</option><option>Bifásica</option><option data-only-opt="PyME">Trifásica</option></select></label>
+          <label class="field field--full"><span class="field__l">¿Qué le gustaría medir? <span class="opt">(opcional)</span></span><textarea name="mensaje" rows="3" placeholder="Por ejemplo: el consumo del compresor, variaciones de voltaje o el recibo de luz."></textarea></label>
           <p class="form-error" role="alert" hidden></p>
-          <p class="form-success" role="status" hidden style="color: #16a34a; font-weight: 500;">¡Solicitud enviada! Nos
-            pondremos en contacto pronto.</p>
-        
-          <p class="form-note">El equipo revisa cada solicitud y se pondrá en contacto con usted para agendar el diagnóstico.
-          </p>
-          <div class="btn-row">
-            <button class="btn btn--primary" type="submit">Solicitar prueba piloto<svg class="m-arrow" viewBox="0 0 12 12"
-                aria-hidden="true">
-                <path class="m-arrow__stem" d="M1 6h8" />
-                <path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" />
-              </svg></button>
-          </div>
+          <p class="form-ok" role="status" hidden></p>
+          <p class="form-note">El equipo revisa cada solicitud y se pondrá en contacto con usted para agendar el diagnóstico.</p>
+          <div class="btn-row"><button class="btn btn--primary" type="submit">Solicitar prueba piloto<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></button></div>
         </form>
       </div>
     </div>
@@ -1638,12 +1614,35 @@ footer .nav__logo svg.logo-mark { height: 36px; }
     msg(field, ''); return true;
   }
   f.querySelectorAll('input:not([type=radio]), select, textarea').forEach(function (el) { el.addEventListener('blur', function () { if (el.value) check(el); }); el.addEventListener('input', function () { if (el.closest('.field').classList.contains('is-invalid')) check(el); }); });
+  var btn = f.querySelector('button[type="submit"]'), okBox = f.querySelector('.form-ok'), err = f.querySelector('.form-error');
+  var btnHTML = btn.innerHTML;
   f.addEventListener('submit', function (e) {
+    e.preventDefault(); e.stopImmediatePropagation();
     var ok = true, first = null;
-    f.querySelectorAll('input:not([type=radio]), select, textarea').forEach(function (el) { if (!check(el)) { ok = false; first = first || el; } });
-    var err = f.querySelector('.form-error');
-    if (!ok) { e.preventDefault(); e.stopImmediatePropagation(); err.hidden = false; err.textContent = 'Revise los campos marcados: faltan datos obligatorios o hay un dato con formato incorrecto.'; first.focus(); return; }
+    f.querySelectorAll('input:not([type=radio]):not([type=hidden]), select, textarea').forEach(function (el) { if (!check(el)) { ok = false; first = first || el; } });
+    okBox.hidden = true;
+    if (!ok) { err.hidden = false; err.textContent = 'Revise los campos marcados: faltan datos obligatorios o hay un dato con formato incorrecto.'; first.focus(); return; }
     err.hidden = true;
+    var fd = new FormData(f);
+    if (fd.get('_honey')) return; // bot
+    var data = {};
+    fd.forEach(function (v, k) { if (k !== '_honey') data[k] = v; });
+    data._replyto = data.correo;
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    fetch(f.getAttribute('data-endpoint'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === 'false' || j.success === false) throw new Error(j.message || 'error'); return j; }); })
+      .then(function () {
+        f.reset(); syncTipo();
+        okBox.hidden = false; okBox.textContent = 'Solicitud enviada. El equipo de VoltAnalytics la revisará y se pondrá en contacto con usted para agendar el diagnóstico.';
+        okBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      })
+      .catch(function () {
+        err.hidden = false; err.textContent = 'No se pudo enviar la solicitud. Revise su conexión e inténtelo de nuevo en unos minutos.';
+      })
+      .then(function () { btn.disabled = false; btn.innerHTML = btnHTML; });
   }, true);
 })();
 </script>

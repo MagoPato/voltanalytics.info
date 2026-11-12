@@ -48,7 +48,7 @@ Brings monitoring + storage + analytics + prediction, normally only available to
 - Exploratory interviews with maintenance/operations staff: needs are continuous monitoring, history and early anomaly detection.
 - Team (Instituto Tecnológico de Nuevo León): David Patricio Escamilla Márquez, Jesús Enrique Soto Soto, Orbelin Jhonkennyc Lagunas Barrientos, Sergio Alfonso Castillo Álvarez, Diana Esmeralda Medellín Salazar. Advisors: Mario Carlos Gallardo Morales, José Isidro Hernández Vega.
 - No customer logos, testimonials, photographs of the prototype or screenshots exist: never fabricate them.
-- Contact email not yet given: placeholder on `.example`.
+- Contact email: voltanalytics01@gmail.com (pilot-request form sends there automatically via FormSubmit).
 
 ## Product Principles
 
