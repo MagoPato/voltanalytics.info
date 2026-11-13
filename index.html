@@ -801,6 +801,13 @@ footer.closing .footer__lede { font-size: 15px; }
 .form-error { grid-column: 1 / -1; margin: 0; padding: 10px 14px; border-radius: 10px; background: #fdecea; color: #8a2a07; font-size: 14px; }
 .form-ok { grid-column: 1 / -1; margin: 0; padding: 12px 14px; border-radius: 10px; background: #e3f4ee; color: #06523f; font-size: 15px; }
 
+.form-done { display: flex; flex-direction: column; gap: var(--s-3); justify-content: center; }
+.form-done__ico { width: 48px; height: 48px; fill: none; stroke: #06525c; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.form-done h3 { margin: 0; }
+.form-done p { margin: 0; }
+.form-done dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px var(--s-4); margin: var(--s-3) 0 0; padding-top: var(--s-4); border-top: 1px solid var(--line); font-size: var(--t-small); }
+.form-done dt { color: var(--muted); }
+.form-done dd { margin: 0; overflow-wrap: anywhere; }
 
 
 /* installation scene: vertical version on every screen under 900px (no sideways scroll) */
@@ -1625,9 +1632,16 @@ footer .nav__logo svg.logo-mark { height: 36px; }
     err.hidden = true;
     var fd = new FormData(f);
     if (fd.get('_honey')) return; // bot
-    var data = {};
-    fd.forEach(function (v, k) { if (k !== '_honey') data[k] = v; });
-    data._replyto = data.correo;
+    var L = { tipo: 'Tipo de instalación', nombre: 'Nombre completo', empresa: 'Nombre de la empresa', correo: 'Correo electrónico', telefono: 'Teléfono', municipio: 'Municipio', red: 'Tipo de red', mensaje: '¿Qué le gustaría medir?' };
+    var data = {}, resumen = [];
+    fd.forEach(function (v, k) {
+      if (k === '_honey') return;
+      if (k.charAt(0) === '_') { data[k] = v; return; }
+      if (k === 'empresa' && fd.get('tipo') !== 'PyME') return;
+      v = String(v).trim() || (k === 'red' ? 'No lo sé' : '—');
+      data[L[k] || k] = v; resumen.push([L[k] || k, v]);
+    });
+    data._replyto = fd.get('correo');
     btn.disabled = true; btn.textContent = 'Enviando…';
     fetch(f.getAttribute('data-endpoint'), {
       method: 'POST',
@@ -1635,9 +1649,13 @@ footer .nav__logo svg.logo-mark { height: 36px; }
       body: JSON.stringify(data)
     }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === 'false' || j.success === false) throw new Error(j.message || 'error'); return j; }); })
       .then(function () {
-        f.reset(); syncTipo();
-        okBox.hidden = false; okBox.textContent = 'Solicitud enviada. El equipo de VoltAnalytics la revisará y se pondrá en contacto con usted para agendar el diagnóstico.';
-        okBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        var d = document.createElement('div');
+        d.className = f.className.replace('form ', '') + ' form-done'; d.setAttribute('role', 'status'); d.tabIndex = -1;
+        var h = '<svg class="form-done__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg><h3>Solicitud enviada</h3><p>El equipo de VoltAnalytics la revisará y se pondrá en contacto con usted para agendar el diagnóstico.</p><dl>';
+        resumen.forEach(function (r) { var t = document.createElement('div'); t.textContent = r[1]; var n = document.createElement('div'); n.textContent = r[0]; h += '<dt>' + n.innerHTML + '</dt><dd>' + t.innerHTML + '</dd>'; });
+        d.innerHTML = h + '</dl>';
+        f.replaceWith(d); d.focus({ preventScroll: true });
+        d.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       })
       .catch(function () {
         err.hidden = false; err.textContent = 'No se pudo enviar la solicitud. Revise su conexión e inténtelo de nuevo en unos minutos.';
