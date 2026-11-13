@@ -1620,13 +1620,13 @@ footer .nav__logo svg.logo-mark { height: 36px; }
     if (el.type === 'email' && el.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value)) { msg(field, 'Escriba un correo electrónico válido, por ejemplo nombre@empresa.com.'); return false; }
     msg(field, ''); return true;
   }
-  f.querySelectorAll('input:not([type=radio]), select, textarea').forEach(function (el) { el.addEventListener('blur', function () { if (el.value) check(el); }); el.addEventListener('input', function () { if (el.closest('.field').classList.contains('is-invalid')) check(el); }); });
+  f.querySelectorAll('input:not([type=radio]):not([type=hidden]):not([name="_honey"]), select, textarea').forEach(function (el) { el.addEventListener('blur', function () { if (el.value) check(el); }); el.addEventListener('input', function () { var fl = el.closest('.field'); if (fl && fl.classList.contains('is-invalid')) check(el); }); });
   var btn = f.querySelector('button[type="submit"]'), okBox = f.querySelector('.form-ok'), err = f.querySelector('.form-error');
   var btnHTML = btn.innerHTML;
   f.addEventListener('submit', function (e) {
     e.preventDefault(); e.stopImmediatePropagation();
     var ok = true, first = null;
-    f.querySelectorAll('input:not([type=radio]):not([type=hidden]), select, textarea').forEach(function (el) { if (!check(el)) { ok = false; first = first || el; } });
+    f.querySelectorAll('input:not([type=radio]):not([type=hidden]):not([name="_honey"]), select, textarea').forEach(function (el) { if (!check(el)) { ok = false; first = first || el; } });
     okBox.hidden = true;
     if (!ok) { err.hidden = false; err.textContent = 'Revise los campos marcados: faltan datos obligatorios o hay un dato con formato incorrecto.'; first.focus(); return; }
     err.hidden = true;
