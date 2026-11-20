@@ -1369,27 +1369,27 @@ footer .nav__logo svg.logo-mark { height: 36px; }
 
   <label class="field">
     <span class="field__l">Nombre completo <span class="req" aria-hidden="true">*</span></span>
-    <input name="nombre" type="text" autocomplete="name" required aria-required="true">
+    <input name="nombre" maxlength="120" type="text" autocomplete="name" required aria-required="true">
   </label>
 
   <label class="field" data-only="PyME">
     <span class="field__l">Nombre de la empresa <span class="opt">(si aplica)</span></span>
-    <input name="empresa" type="text" autocomplete="organization">
+    <input name="empresa" maxlength="120" type="text" autocomplete="organization">
   </label>
 
   <label class="field">
     <span class="field__l">Correo electrónico <span class="req" aria-hidden="true">*</span></span>
-    <input name="email" type="email" autocomplete="email" required aria-required="true">
+    <input name="email" maxlength="160" type="email" autocomplete="email" required aria-required="true">
   </label>
 
   <label class="field">
     <span class="field__l">Teléfono <span class="opt">(opcional)</span></span>
-    <input name="telefono" type="tel" autocomplete="tel" inputmode="tel">
+    <input name="telefono" maxlength="30" type="tel" autocomplete="tel" inputmode="tel">
   </label>
 
   <label class="field">
     <span class="field__l">Municipio <span class="req" aria-hidden="true">*</span></span>
-    <input name="municipio" type="text" autocomplete="address-level2" required aria-required="true">
+    <input name="municipio" maxlength="80" type="text" autocomplete="address-level2" required aria-required="true">
   </label>
 
   <label class="field">
@@ -1404,7 +1404,7 @@ footer .nav__logo svg.logo-mark { height: 36px; }
 
   <label class="field field--full">
     <span class="field__l">¿Qué le gustaría medir? <span class="opt">(opcional)</span></span>
-    <textarea name="mensaje" rows="3" placeholder="Por ejemplo: el consumo del compresor, variaciones de voltaje o el recibo de luz."></textarea>
+    <textarea name="mensaje" rows="3" maxlength="1500" placeholder="Por ejemplo: el consumo del compresor, variaciones de voltaje o el recibo de luz."></textarea>
   </label>
 
   <p class="form-error" role="alert" hidden></p>
@@ -1649,14 +1649,13 @@ footer .nav__logo svg.logo-mark { height: 36px; }
 var EMAILJS_CFG = {
   publicKey:    'VhLsz_rQPhMeZI-19',
   serviceId:    'service_zi741f8',
-  templateCasa: 'template_jnauz6j',
-  templatePyme: ''   // pega aquí el Template ID de la plantilla PyME cuando la crees; vacío = usa la de casa
+  templateId:   'template_jnauz6j'   // una sola plantilla para Hogar y PyME
 };
 emailjs.init({ publicKey: EMAILJS_CFG.publicKey });
 
-async function enviarSolicitud(datos, templateId) {
+async function enviarSolicitud(datos) {
   try {
-    var respuesta = await emailjs.send(EMAILJS_CFG.serviceId, templateId || EMAILJS_CFG.templateCasa, datos);
+    var respuesta = await emailjs.send(EMAILJS_CFG.serviceId, EMAILJS_CFG.templateId, datos);
     console.log('Solicitud enviada:', respuesta);
     return true;
   } catch (error) {
@@ -1700,22 +1699,47 @@ async function enviarSolicitud(datos, templateId) {
     var fd = new FormData(f);
     if (fd.get('_honey')) return; // bot
     var L = { tipo: 'Tipo de instalación', nombre: 'Nombre completo', empresa: 'Nombre de la empresa', email: 'Correo electrónico', telefono: 'Teléfono', municipio: 'Municipio', red: 'Tipo de red', mensaje: '¿Qué le gustaría medir?' };
-    var data = {}, resumen = [];
+    /* Limpieza: recorta espacios, quita caracteres de control y limita la longitud */
+    function limpio(k, max) { return String(fd.get(k) || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').replace(/[ \t]+/g, ' ').trim().slice(0, max); }
+    var esPyme = fd.get('tipo') === 'PyME';
+    var data = {
+      tipo: esPyme ? 'PyME' : 'Casa',
+      nombre: limpio('nombre', 120),
+      empresa: esPyme ? limpio('empresa', 120) : '',
+      email: limpio('email', 160).toLowerCase(),
+      telefono: limpio('telefono', 30) || 'No proporcionado',
+      municipio: limpio('municipio', 80),
+      red: limpio('red', 30) || 'No especificada',
+      mensaje: limpio('mensaje', 1500) || 'Sin comentarios'
+    };
+    /* Textos ya armados para la plantilla: sin guiones ni campos vacíos */
+    data.titulo = (esPyme && data.empresa) ? data.empresa : data.nombre;
+    data.subtitulo = esPyme
+      ? [data.nombre, 'PyME', data.municipio].join(' · ')
+      : ['Casa', data.municipio].join(' · ');
+    data.paso = esPyme
+      ? 'Contactar al solicitante para agendar el diagnóstico de la línea crítica de su planta.'
+      : 'Contactar al solicitante para agendar el diagnóstico del centro de carga de su casa.';
+    var resumen = [];
     ['tipo', 'nombre', 'empresa', 'email', 'telefono', 'municipio', 'red', 'mensaje'].forEach(function (k) {
-      if (k === 'empresa' && fd.get('tipo') !== 'PyME') return;
-      var v = String(fd.get(k) || '').trim() || (k === 'red' ? 'No lo sé' : '—');
-      data[k] = v; resumen.push([L[k], v]);
+      if (k === 'empresa' && !esPyme) return;
+      resumen.push([L[k], data[k]]);
     });
+    /* Freno contra envíos repetidos (60 s) */
+    try {
+      var ult = Number(localStorage.getItem('va_ult_envio') || 0);
+      if (Date.now() - ult < 60000) { err.hidden = false; err.textContent = 'Ya enviamos su solicitud hace un momento. Espere un minuto antes de enviar otra.'; return; }
+    } catch (e) {}
     var ahora = new Date();
     data.name = data.nombre;                       // remitente ({{name}} en EmailJS)
     data.folio = 'VA-' + ahora.getFullYear() + ('0' + (ahora.getMonth() + 1)).slice(-2) + ('0' + ahora.getDate()).slice(-2) + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     data.fecha = ahora.toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' });
     data.pagina = location.href.split('#')[0];
     btn.disabled = true; btn.textContent = 'Enviando…';
-    var plantilla = (data.tipo === 'PyME' && EMAILJS_CFG.templatePyme) ? EMAILJS_CFG.templatePyme : EMAILJS_CFG.templateCasa;
-    enviarSolicitud(data, plantilla)
+    enviarSolicitud(data)
       .then(function (okEnvio) {
         if (!okEnvio) throw new Error('send');
+        try { localStorage.setItem('va_ult_envio', String(Date.now())); } catch (e) {}
         var d = document.createElement('div');
         d.className = f.className.replace('form ', '') + ' form-done'; d.setAttribute('role', 'status'); d.tabIndex = -1;
         var h = '<svg class="form-done__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg><h3>Solicitud enviada</h3><p>El equipo de VoltAnalytics la revisará y se pondrá en contacto con usted para agendar el diagnóstico. Folio: <b>' + data.folio + '</b></p><dl>';
