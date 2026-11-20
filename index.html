@@ -1355,16 +1355,11 @@ footer .nav__logo svg.logo-mark { height: 36px; }
             <li><svg class="ico ico--step" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h6M8 13h8M8 17h5"/></svg><span class="rows__name">Reporte de resultados</span><p>Le entregamos las anomalías detectadas y las acciones recomendadas.</p></li>
           </ol>
         </div>
-       <form class="pilot-form form span-6 start-7" method="POST" action="https://formsubmit.co">
+       <form class="pilot-form form span-6 start-7" method="POST" novalidate>
   <p class="form-req">Los campos marcados con <span class="req" aria-hidden="true">*</span> son obligatorios.</p>
 
-  <!-- Configuración de FormSubmit -->
+  <!-- Anti-spam (honeypot): los bots lo llenan, las personas no lo ven -->
   <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
-  <input type="hidden" name="_subject" value="Nueva solicitud de prueba piloto · VoltAnalytics">
-  <input type="hidden" name="_template" value="table">
-  <input type="hidden" name="_captcha" value="false">
-  <!-- Cambia esta URL por la página a la que quieres redirigir después de enviar -->
-  <input type="hidden" name="_next" value="https://tudominio.com">
 
   <fieldset class="field field--full seg">
     <legend>Tipo de instalación <span class="req" aria-hidden="true">*</span></legend>
@@ -1377,7 +1372,7 @@ footer .nav__logo svg.logo-mark { height: 36px; }
     <input name="nombre" type="text" autocomplete="name" required aria-required="true">
   </label>
 
-  <label class="field">
+  <label class="field" data-only="PyME">
     <span class="field__l">Nombre de la empresa <span class="opt">(si aplica)</span></span>
     <input name="empresa" type="text" autocomplete="organization">
   </label>
@@ -1403,7 +1398,7 @@ footer .nav__logo svg.logo-mark { height: 36px; }
       <option value="No lo sé">No lo sé</option>
       <option value="Monofásica">Monofásica</option>
       <option value="Bifásica">Bifásica</option>
-      <option value="Trifásica">Trifásica</option>
+      <option value="Trifásica" data-only-opt="PyME">Trifásica</option>
     </select>
   </label>
 
@@ -1411,6 +1406,9 @@ footer .nav__logo svg.logo-mark { height: 36px; }
     <span class="field__l">¿Qué le gustaría medir? <span class="opt">(opcional)</span></span>
     <textarea name="mensaje" rows="3" placeholder="Por ejemplo: el consumo del compresor, variaciones de voltaje o el recibo de luz."></textarea>
   </label>
+
+  <p class="form-error" role="alert" hidden></p>
+  <p class="form-ok" role="status" hidden></p>
 
   <p class="form-note">El equipo revisa cada solicitud y se pondrá en contacto con usted para agendar el diagnóstico.</p>
 
@@ -1645,6 +1643,28 @@ footer .nav__logo svg.logo-mark { height: 36px; }
   document.addEventListener('click', function () { close(); });
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+/* EmailJS: la Public Key es pública por diseño; la Private Key NUNCA va en el sitio. */
+var EMAILJS_CFG = {
+  publicKey:    'VhLsz_rQPhMeZI-19',
+  serviceId:    'service_zi741f8',
+  templateCasa: 'template_jnauz6j',
+  templatePyme: ''   // pega aquí el Template ID de la plantilla PyME cuando la crees; vacío = usa la de casa
+};
+emailjs.init({ publicKey: EMAILJS_CFG.publicKey });
+
+async function enviarSolicitud(datos, templateId) {
+  try {
+    var respuesta = await emailjs.send(EMAILJS_CFG.serviceId, templateId || EMAILJS_CFG.templateCasa, datos);
+    console.log('Solicitud enviada:', respuesta);
+    return true;
+  } catch (error) {
+    console.error('Error al enviar:', error);
+    return false;
+  }
+}
+</script>
 <script>
 (function () {
   var f = document.querySelector('.pilot-form'); if (!f) return;
@@ -1679,26 +1699,26 @@ footer .nav__logo svg.logo-mark { height: 36px; }
     err.hidden = true;
     var fd = new FormData(f);
     if (fd.get('_honey')) return; // bot
-    var L = { tipo: 'Tipo de instalación', nombre: 'Nombre completo', empresa: 'Nombre de la empresa', correo: 'Correo electrónico', telefono: 'Teléfono', municipio: 'Municipio', red: 'Tipo de red', mensaje: '¿Qué le gustaría medir?' };
+    var L = { tipo: 'Tipo de instalación', nombre: 'Nombre completo', empresa: 'Nombre de la empresa', email: 'Correo electrónico', telefono: 'Teléfono', municipio: 'Municipio', red: 'Tipo de red', mensaje: '¿Qué le gustaría medir?' };
     var data = {}, resumen = [];
-    fd.forEach(function (v, k) {
-      if (k === '_honey') return;
-      if (k.charAt(0) === '_') { data[k] = v; return; }
+    ['tipo', 'nombre', 'empresa', 'email', 'telefono', 'municipio', 'red', 'mensaje'].forEach(function (k) {
       if (k === 'empresa' && fd.get('tipo') !== 'PyME') return;
-      v = String(v).trim() || (k === 'red' ? 'No lo sé' : '—');
-      data[L[k] || k] = v; resumen.push([L[k] || k, v]);
+      var v = String(fd.get(k) || '').trim() || (k === 'red' ? 'No lo sé' : '—');
+      data[k] = v; resumen.push([L[k], v]);
     });
-    data._replyto = fd.get('correo');
+    var ahora = new Date();
+    data.name = data.nombre;                       // remitente ({{name}} en EmailJS)
+    data.folio = 'VA-' + ahora.getFullYear() + ('0' + (ahora.getMonth() + 1)).slice(-2) + ('0' + ahora.getDate()).slice(-2) + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+    data.fecha = ahora.toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' });
+    data.pagina = location.href.split('#')[0];
     btn.disabled = true; btn.textContent = 'Enviando…';
-    fetch(f.getAttribute('data-endpoint'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === 'false' || j.success === false) throw new Error(j.message || 'error'); return j; }); })
-      .then(function () {
+    var plantilla = (data.tipo === 'PyME' && EMAILJS_CFG.templatePyme) ? EMAILJS_CFG.templatePyme : EMAILJS_CFG.templateCasa;
+    enviarSolicitud(data, plantilla)
+      .then(function (okEnvio) {
+        if (!okEnvio) throw new Error('send');
         var d = document.createElement('div');
         d.className = f.className.replace('form ', '') + ' form-done'; d.setAttribute('role', 'status'); d.tabIndex = -1;
-        var h = '<svg class="form-done__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg><h3>Solicitud enviada</h3><p>El equipo de VoltAnalytics la revisará y se pondrá en contacto con usted para agendar el diagnóstico.</p><dl>';
+        var h = '<svg class="form-done__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg><h3>Solicitud enviada</h3><p>El equipo de VoltAnalytics la revisará y se pondrá en contacto con usted para agendar el diagnóstico. Folio: <b>' + data.folio + '</b></p><dl>';
         resumen.forEach(function (r) { var t = document.createElement('div'); t.textContent = r[1]; var n = document.createElement('div'); n.textContent = r[0]; h += '<dt>' + n.innerHTML + '</dt><dd>' + t.innerHTML + '</dd>'; });
         d.innerHTML = h + '</dl>';
         f.replaceWith(d); d.focus({ preventScroll: true });
@@ -1706,8 +1726,8 @@ footer .nav__logo svg.logo-mark { height: 36px; }
       })
       .catch(function () {
         err.hidden = false; err.textContent = 'No se pudo enviar la solicitud. Revise su conexión e inténtelo de nuevo en unos minutos.';
-      })
-      .then(function () { btn.disabled = false; btn.innerHTML = btnHTML; });
+        btn.disabled = false; btn.innerHTML = btnHTML;
+      });
   }, true);
 })();
 </script>
